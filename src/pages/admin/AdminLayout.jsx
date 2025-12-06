@@ -1,42 +1,46 @@
-import { Outlet, Link, useLocation } from 'react-router-dom'
+// src/pages/admin/AdminLayout.jsx
+import { Outlet, Navigate, useLocation, Link } from 'react-router-dom'
+import { useAuth } from '../../auth/AuthProvider'
 
 export default function AdminLayout() {
+  const { isAuthenticated, loading, logout, user } = useAuth()
   const location = useLocation()
 
-  const isActive = (path) =>
-    location.pathname === path
-      ? 'text-accent font-semibold'
-      : 'text-slate-300 hover:text-accent'
+  // Mientras verifica la sesión (llamada a /auth/csrf y /auth/me)
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-950 text-slate-200">
+        Verificando sesión...
+      </div>
+    )
+  }
 
+  // Si no está autenticado -> lo manda al login
+  if (!isAuthenticated) {
+    return <Navigate to="/admin/login" state={{ from: location }} replace />
+  }
+
+  // Si sí está autenticado, renderiza el panel
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex">
-      {/* Sidebar */}
-      <aside className="hidden w-64 flex-col border-r border-slate-800 bg-slate-950/90 px-4 py-6 md:flex">
-        <h1 className="text-lg font-semibold text-primary mb-6">Panel de Control</h1>
-        <nav className="flex flex-col gap-2 text-sm">
-          <Link to="/admin" className={isActive('/admin')}>
-            Dashboard
-          </Link>
-          <Link to="/admin/projects" className={isActive('/admin/projects')}>
-            Proyectos
-          </Link>
-          <Link to="/admin/services" className={isActive('/admin/services')}>
-            Servicios
-          </Link>
-          <Link to="/admin/messages" className={isActive('/admin/messages')}>
-            Mensajes
-          </Link>
+      <aside className="w-64 border-r border-slate-800 p-4">
+        <h1 className="font-semibold mb-4">Panel admin</h1>
+        <p className="text-xs text-slate-400 mb-4">
+          {user?.email}
+        </p>
+        <nav className="grid gap-2 text-sm">
+          <Link to="/admin">Dashboard</Link>
+          <Link to="/admin/projects">Proyectos</Link>
         </nav>
-
-        <div className="mt-auto pt-4 border-t border-slate-800 text-xs text-slate-500">
-          <Link to="/" className="hover:text-accent transition-colors">
-            Ver sitio público
-          </Link>
-        </div>
+        <button
+          onClick={logout}
+          className="mt-6 text-xs text-red-400 hover:text-red-300"
+        >
+          Cerrar sesión
+        </button>
       </aside>
 
-      {/* Contenido */}
-      <main className="flex-1 px-4 py-6 md:px-8">
+      <main className="flex-1 p-6">
         <Outlet />
       </main>
     </div>

@@ -18,13 +18,6 @@ export default function Navbar() {
           <a href="#skills" className="hover:text-accent transition-colors">Habilidades</a>
           <a href="#projects" className="hover:text-accent transition-colors">Proyectos</a>
           <a href="#contact" className="hover:text-accent transition-colors">Contacto</a>
-
-          <Link
-            to="/admin"
-            className="ml-4 rounded-full border border-slate-600 px-3 py-1 text-xs hover:border-accent hover:bg-primary hover:text-white transition-colors"
-          >
-            Panel
-          </Link>
         </div>
       </nav>
     </header>
