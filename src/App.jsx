@@ -18,14 +18,9 @@ function App() {
 
       {/* admin */}
       <Route path="/admin" element={<AdminLayout />}>
-        {/* dashboard */}
         <Route index element={<AdminDashboard />} />
-
-        {/* ✅ EXPERIENCE */}
         <Route path="experience" element={<ExperiencePage />} />
         <Route path="messages" element={<MessagesPage />} />
-
-        {/* fallback */}
         <Route path="*" element={<Navigate to="/admin" replace />} />
       </Route>
     </Routes>

@@ -4,9 +4,12 @@ import QuickAction from "../../components/admin/QuickAction";
 
 import { ensureCsrf } from "../../api/csrf";
 import { getAdminProjects } from "../../api/projects";
-import { getAdminMessages } from "../../api/messages";
+import { listMessages } from "../../api/messages";
+import { useAuth } from "../../auth/AuthProvider";
 
 export default function AdminDashboard() {
+  const { logout } = useAuth();
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -24,12 +27,18 @@ export default function AdminDashboard() {
       // Cargar en paralelo
       const [projectsRes, messagesRes] = await Promise.all([
         getAdminProjects(),
-        getAdminMessages(),
+        listMessages(),
       ]);
 
       setProjects(Array.isArray(projectsRes) ? projectsRes : []);
       setMessages(Array.isArray(messagesRes) ? messagesRes : []);
     } catch (e) {
+      // Si sesión expira, cerramos sesión local (AdminLayout redirige al login)
+      if (e?.response?.status === 401) {
+        logout?.();
+        return;
+      }
+
       const msg =
         e?.response?.data?.message ||
         e?.message ||
@@ -43,13 +52,13 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Stats: por ahora con length
   const stats = useMemo(() => {
     const totalProjects = projects.length;
 
-    // opcional: separar publicados / draft
     const publishedCount = projects.filter((p) => p.status === "published").length;
     const draftCount = projects.filter((p) => p.status === "draft").length;
 
@@ -106,9 +115,7 @@ export default function AdminDashboard() {
           title="Proyectos"
           value={stats.totalProjects}
           subtitle={
-            loading
-              ? ""
-              : `${stats.publishedCount} publicados • ${stats.draftCount} draft`
+            loading ? "" : `${stats.publishedCount} publicados • ${stats.draftCount} draft`
           }
           loading={loading}
         />
@@ -146,9 +153,9 @@ export default function AdminDashboard() {
               to="/admin/content/home"
             />
             <QuickAction
-              title="Skills"
-              description="Ordena y administra tus habilidades."
-              to="/admin/skills"
+              title="Experience"
+              description="Administra tu trayectoria profesional."
+              to="/admin/experience"
             />
             <QuickAction
               title="Mensajes"
@@ -190,9 +197,7 @@ export default function AdminDashboard() {
                         </p>
                       </div>
 
-                      <span className={badgeClass(m.status)}>
-                        {m.status}
-                      </span>
+                      <span className={badgeClass(m.status)}>{m.status}</span>
                     </div>
                   </div>
                 ))
@@ -218,8 +223,7 @@ export default function AdminDashboard() {
           <div className="mt-4 rounded-xl border border-slate-800 bg-slate-900/40 p-3">
             <p className="text-xs text-slate-300">
               Cuando hagamos paginación pro, migramos a:
-              <span className="text-slate-200"> {`{ items, total }`}</span>
-              .
+              <span className="text-slate-200"> {`{ items, total }`}</span>.
             </p>
           </div>
         </div>
@@ -238,14 +242,16 @@ function Row({ label, value }) {
 }
 
 function badgeClass(status) {
-  const base =
-    "shrink-0 rounded-full border px-2 py-1 text-[11px] leading-none";
+  const base = "shrink-0 rounded-full border px-2 py-1 text-[11px] leading-none";
 
   if (status === "new") {
     return `${base} border-emerald-500/20 bg-emerald-500/10 text-emerald-300`;
   }
   if (status === "read") {
     return `${base} border-slate-700 bg-slate-900/40 text-slate-300`;
+  }
+  if (status === "archived") {
+    return `${base} border-purple-500/20 bg-purple-500/10 text-purple-300`;
   }
   return `${base} border-slate-700 bg-slate-900/40 text-slate-300`;
 }
