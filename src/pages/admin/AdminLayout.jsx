@@ -46,6 +46,8 @@ export default function AdminLayout() {
           <Item to="/admin">Dashboard</Item>
           <Item to="/admin/projects">Proyectos</Item>
           <Item to="/admin/experience">Experience</Item>
+          <Item to="/admin/messages">Mensajes</Item>
+
           {/* luego: Skills, Messages, Home */}
         </nav>
 

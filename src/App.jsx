@@ -5,6 +5,7 @@ import Login from './pages/admin/Login.jsx'
 import AdminLayout from './pages/admin/AdminLayout.jsx'
 import AdminDashboard from './pages/admin/AdminDashboard.jsx'
 import ExperiencePage from './pages/admin/ExperiencePage.jsx'
+import MessagesPage from './pages/admin/MessagesPage.jsx'
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
 
         {/* ✅ EXPERIENCE */}
         <Route path="experience" element={<ExperiencePage />} />
+        <Route path="messages" element={<MessagesPage />} />
 
         {/* fallback */}
         <Route path="*" element={<Navigate to="/admin" replace />} />
